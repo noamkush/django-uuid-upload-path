@@ -3,17 +3,21 @@ from __future__ import absolute_import, unicode_literals
 import posixpath
 
 from uuid_upload_path.uuid import uuid
+from django.utils.deconstruct import deconstructible
 
 
-def upload_to_factory(prefix):
+@deconstructible
+class upload_to_factory(object):
     """
     An upload path generator that uses compact UUIDs for filenames.
     """
-    def get_upload_path(instance, filename):
-        name, ext = posixpath.splitext(filename)
-        return posixpath.join(prefix, uuid() + ext)
-    return get_upload_path
 
+    def __init__(self, prefix):
+        self.prefix = prefix
+
+    def __call__(self, instance, filename):
+        name, ext = posixpath.splitext(filename)
+        return posixpath.join(self.prefix, uuid() + ext)
 
 def upload_to(instance, filename):
     """
